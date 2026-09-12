@@ -1,0 +1,160 @@
+{
+  "capabilityId": "meridian.member.savings_balance",
+  "capabilityVersion": "1.0.0",
+  "tenant": "cu-northstar",
+  "startedAt": "2026-09-12T10:58:35.549Z",
+  "finishedAt": "2026-09-12T10:58:40.926Z",
+  "durationMs": 5377,
+  "steps": [
+    {
+      "stepId": "s000",
+      "intent": "open Meridian Core Servicing",
+      "action": "navigate",
+      "status": "ok",
+      "durationMs": 1033,
+      "checkpoint": {
+        "ok": true,
+        "expected": "a textbox named \"Operator ID\" is on screen",
+        "observed": "found textbox \"Operator ID\" at tier role+name+scope",
+        "waitedMs": 6
+      }
+    },
+    {
+      "stepId": "s001",
+      "intent": "enter the stored service operator id",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 67,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s002",
+      "intent": "enter the stored service operator password",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 62,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s003",
+      "intent": "sign on to the servicing application",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 584,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MENU\"",
+        "observed": "found \"MENU\"",
+        "waitedMs": 7
+      }
+    },
+    {
+      "stepId": "s004",
+      "intent": "dismiss the nightly batch notice (only if present; also handled by recovery \"dismiss-maintenance-notice\")",
+      "action": "click",
+      "status": "skipped",
+      "durationMs": 2186,
+      "recordedTier": "role+name+scope",
+      "note": "no dialog named \"Scheduled Maintenance\" on screen"
+    },
+    {
+      "stepId": "s005",
+      "intent": "open the member inquiry screen",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 597,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER INQUIRY\"",
+        "observed": "found \"MEMBER INQUIRY\"",
+        "waitedMs": 9
+      }
+    },
+    {
+      "stepId": "s006",
+      "intent": "enter the member number being looked up",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 43,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "textbox \"Member Number\" matches /^\\d{5}$/",
+        "observed": "value matches /^\\d{5}$/",
+        "waitedMs": 4
+      }
+    },
+    {
+      "stepId": "s007",
+      "intent": "retrieve the member record",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 599,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER DETAIL\"",
+        "observed": "found \"MEMBER DETAIL\"",
+        "waitedMs": 12
+      }
+    },
+    {
+      "stepId": "s008",
+      "intent": "read the member's name from the detail header",
+      "action": "extract",
+      "status": "ok",
+      "durationMs": 9,
+      "recordedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s009",
+      "intent": "read the ledger balance from the regular share savings row of the share grid",
+      "action": "extract",
+      "status": "ok",
+      "durationMs": 6,
+      "recordedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s999",
+      "intent": "confirm the goal is complete",
+      "action": "assert",
+      "status": "ok",
+      "durationMs": 5,
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER DETAIL\"",
+        "observed": "found \"MEMBER DETAIL\"",
+        "waitedMs": 5
+      }
+    }
+  ],
+  "recoveries": [
+    {
+      "recoveryId": "dismiss-maintenance-notice",
+      "atStepId": "s004",
+      "trigger": "found dialog \"Scheduled Maintenance\" at tier role+name+scope",
+      "appliedCount": 1,
+      "succeeded": true
+    }
+  ],
+  "degradedSteps": [],
+  "evidence": {
+    "runId": "replay-2026-09-12T10-58-35-446Z-9a6e6b",
+    "directory": "evidence/runs/replay-2026-09-12T10-58-35-446Z-9a6e6b",
+    "log": "evidence/runs/replay-2026-09-12T10-58-35-446Z-9a6e6b/run.jsonl",
+    "screenshots": []
+  },
+  "status": "success",
+  "outputs": {
+    "memberName": "DELACROIX, R M",
+    "savingsBalance": 4182.55
+  }
+}

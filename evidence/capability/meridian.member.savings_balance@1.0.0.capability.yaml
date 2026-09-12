@@ -1,0 +1,421 @@
+# Read a member's regular share savings balance
+# Look up a member by member number in Meridian Core Servicing and return the balance of their regular share savings account, along with the member's name for confirmation. Read-only.
+#
+# Reviewer checklist: inputs and returns below are the whole public contract.
+# Every step carries the condition that proves it worked. Values are templates,
+# never data: nothing in this file is a member, a balance or a credential.
+apiVersion: handspan.dev/capability/v1
+id: meridian.member.savings_balance
+version: 1.0.0
+title: Read a member's regular share savings balance
+summary: Look up a member by member number in Meridian Core Servicing and return the balance of
+  their regular share savings account, along with the member's name for confirmation. Read-only.
+surface: web-legacy
+app:
+  id: meridian-core-servicing
+  vendor: Meridian
+  vendorVersion: "8.4"
+  recordedForTenant: meridian-demo
+entryUrlTemplate: "{{baseUrl}}/"
+params:
+  memberId:
+    type: string
+    description: The member's 5-digit member number.
+    required: true
+    pattern: ^\d{5}$
+    sensitivity: pii-id
+    example: "10000"
+returns:
+  memberName:
+    type: string
+    description: The member's name as held on the core, for the caller to confirm identity.
+    sensitivity: pii
+    required: true
+  savingsBalance:
+    type: money
+    description: Ledger balance of the regular share savings account.
+    sensitivity: account
+    required: true
+secrets:
+  - meridian.username
+  - meridian.password
+steps:
+  - id: s000
+    intent: open Meridian Core Servicing
+    action: navigate
+    phase: navigate
+    risk: read_only
+    url: "{{baseUrl}}/"
+    checkpoint:
+      kind: controlPresent
+      ref:
+        role: textbox
+        name: Operator ID
+        nameMatch: normalized
+        hints:
+          selector: form[action="/login"] input[name="op"]
+          nearText: Operator ID
+    timeoutMs: 20000
+    optional: false
+    onCheckpointFail: fail
+  - id: s001
+    intent: enter the stored service operator id
+    action: fill
+    phase: signon
+    risk: read_only
+    ref:
+      role: textbox
+      name: Operator ID
+      nameMatch: normalized
+      hints:
+        selector: form[action="/login"] input[name="op"]
+        nearText: Operator ID
+    value: "{{secret:meridian.username}}"
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s002
+    intent: enter the stored service operator password
+    action: fill
+    phase: signon
+    risk: read_only
+    ref:
+      role: password
+      name: Password
+      nameMatch: normalized
+      hints:
+        selector: form[action="/login"] input[name="pw"]
+        nearText: Password
+    value: "{{secret:meridian.password}}"
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s003
+    intent: sign on to the servicing application
+    action: click
+    phase: signon
+    risk: read_only
+    ref:
+      role: button
+      name: Sign On
+      nameMatch: normalized
+      hints:
+        selector: div > table > tbody > tr:nth-of-type(3) > td > input
+        nearText: Operator ID
+    checkpoint:
+      kind: textPresent
+      text: MENU
+      regex: false
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s004
+    intent: dismiss the nightly batch notice (only if present; also handled by recovery
+      "dismiss-maintenance-notice")
+    action: click
+    phase: navigate
+    risk: read_only
+    ref:
+      role: button
+      name: Continue
+      nameMatch: normalized
+      hints:
+        selector: div:nth-of-type(1) > div:nth-of-type(2) > form > input
+    waitFor:
+      kind: controlPresent
+      ref:
+        role: dialog
+        name: Scheduled Maintenance
+        nameMatch: contains
+    checkpoint:
+      kind: textPresent
+      text: Select a function from the menu
+      regex: false
+    timeoutMs: 15000
+    optional: true
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s005
+    intent: open the member inquiry screen
+    action: click
+    phase: navigate
+    risk: read_only
+    ref:
+      role: link
+      name: Member Inquiry
+      nameMatch: normalized
+      hints:
+        selector: a:nth-of-type(1)
+        nearText: MENU
+    checkpoint:
+      kind: textPresent
+      text: MEMBER INQUIRY
+      regex: false
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s006
+    intent: enter the member number being looked up
+    action: fill
+    phase: input
+    risk: read_only
+    ref:
+      role: textbox
+      name: Member Number
+      nameMatch: normalized
+      hints:
+        selector: form[action="/member/search"] input[name="mbr_no"]
+        nearText: Member Number
+    value: "{{memberId}}"
+    checkpoint:
+      kind: valueMatches
+      ref:
+        role: textbox
+        name: Member Number
+        nameMatch: normalized
+        hints:
+          selector: form[action="/member/search"] input[name="mbr_no"]
+          nearText: Member Number
+      pattern: ^\d{5}$
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s007
+    intent: retrieve the member record
+    action: click
+    phase: input
+    risk: read_only
+    ref:
+      role: button
+      name: Retrieve
+      nameMatch: normalized
+      hints:
+        selector: td > table > tbody > tr:nth-of-type(2) > td > input:nth-of-type(1)
+        nearText: Member Number
+    checkpoint:
+      kind: textPresent
+      text: MEMBER DETAIL
+      regex: false
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s008
+    intent: read the member's name from the detail header
+    action: extract
+    phase: read
+    risk: read_only
+    extract:
+      as: memberName
+      source:
+        kind: control
+        ref:
+          role: cell
+          name: Name
+          nameMatch: normalized
+          scope:
+            frame:
+              name: main
+            section: MEMBER DETAIL
+          ordinal: 0
+          hints:
+            selector: tr > td > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)
+            nearText: Name
+      transform: trim
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s009
+    intent: read the ledger balance from the regular share savings row of the share grid
+    action: extract
+    phase: read
+    risk: read_only
+    extract:
+      as: savingsBalance
+      source:
+        kind: control
+        ref:
+          role: cell
+          name: Balance
+          nameMatch: normalized
+          scope:
+            frame:
+              name: main
+            rowContaining: REGULAR SHARE SAVINGS
+          hints:
+            selector: div:nth-of-type(3) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(3)
+            nearText: Balance
+      transform: money
+    timeoutMs: 15000
+    optional: false
+    onCheckpointFail: fail
+    recordedTier: role+name+scope
+  - id: s999
+    intent: confirm the goal is complete
+    action: assert
+    phase: read
+    risk: read_only
+    checkpoint:
+      kind: textPresent
+      text: MEMBER DETAIL
+      regex: false
+    timeoutMs: 10000
+    optional: false
+    onCheckpointFail: fail
+outcomes:
+  - id: MEMBER_NOT_FOUND
+    description: The member number does not exist on this core. A valid answer, not a fault.
+    detect:
+      kind: textPresent
+      text: No member found for
+    disposition: return
+    checkAfter: []
+    extract:
+      - as: searchedFor
+        source:
+          kind: text
+          pattern: No member found for (\d+)
+        transform: trim
+  - id: PERMISSION_DENIED
+    description: The signed-on operator lacks the entitlement for this record. Routed to a human because
+      an operator with the right entitlement can complete the work, which a retry never will.
+    detect:
+      kind: textPresent
+      text: is restricted
+    disposition: escalate
+    checkAfter: []
+    extract: []
+  - id: FIELD_VALIDATION_REJECTED
+    description: The application rejected a field value. Returned to the caller so it can correct the
+      input rather than retrying the same value.
+    detect:
+      kind: anyOf
+      of:
+        - kind: textPresent
+          text: must be exactly
+        - kind: textPresent
+          text: is not valid for this member class
+        - kind: textPresent
+          text: must be a numeric amount
+    disposition: return
+    checkAfter: []
+    extract:
+      - as: validationMessage
+        source:
+          kind: text
+          pattern: (Member Number must be[^.]*\.|[A-Z][^.]*is not valid for this member class\.|Initial
+            Deposit must be[^.]*\.)
+        transform: trim
+  - id: APP_ERROR
+    description: "The application itself failed - a transaction abend. Escalated rather than returned:
+      nothing the caller can do with this, and a person needs the reference number to raise it with
+      the service desk."
+    detect:
+      kind: anyOf
+      of:
+        - kind: textPresent
+          text: ABEND
+        - kind: textPresent
+          text: An unexpected condition occurred
+    disposition: escalate
+    checkAfter: []
+    extract:
+      - as: abendReference
+        source:
+          kind: text
+          pattern: REF=([A-Z0-9]+)
+        transform: trim
+  - id: SIGNON_REJECTED
+    description: The stored operator credential was refused. Escalated because it is an estate problem -
+      a locked or rotated service account - and no retry fixes it.
+    detect:
+      kind: textPresent
+      text: Sign-on failed
+    disposition: escalate
+    checkAfter: []
+    extract: []
+recoveries:
+  - id: dismiss-maintenance-notice
+    description: The nightly-batch notice appears on the first visit to the home screen of each session,
+      and after any server restart. Dismissing it is the only way forward and carries no risk.
+    when:
+      kind: controlPresent
+      ref:
+        role: dialog
+        name: Scheduled Maintenance
+        nameMatch: contains
+    do:
+      - kind: click
+        ref:
+          role: button
+          name: Continue
+          scope:
+            section: Scheduled Maintenance
+    maxPerRun: 3
+    retryStep: true
+  - id: reauthenticate-expired-session
+    description: "The session times out on inactivity and every screen then shows the sign-on form.
+      Recovering means more than signing on again: the flow has to be rebuilt to the point it was
+      interrupted, which is what `replayFrom: signon` does. The explicit navigate first is
+      deliberate - signing on inside a frame leaves a frameset nested inside a frameset, and every
+      later frame reference becomes ambiguous."
+    when:
+      kind: textPresent
+      text: session has expired
+    do:
+      - kind: navigate
+        url: "{{baseUrl}}/"
+      - kind: replayFrom
+        phase: signon
+    maxPerRun: 2
+    retryStep: true
+policy:
+  riskTier: read_only
+  allowedOrigins:
+    - http://localhost:8099
+  allowedPathPrefixes:
+    - /
+  allowedActions:
+    - navigate
+    - fill
+    - click
+    - extract
+    - assert
+  requiresApproval: false
+provenance:
+  discoveredBy:
+    model: scripted
+    runId: discovery-2026-09-12T10-58-08-387Z-1755b8
+    at: 2026-09-12T10:58:08.492Z
+    goal: Sign on to the servicing application, open the member inquiry screen, look up the member by
+      their member number, and read their regular share savings balance from the share list on the
+      member detail screen.
+    blockedActions: 0
+    humanAssisted: false
+  approval:
+    state: draft
+  stability:
+    runs: 0
+    successes: 0
+    degradedSteps: []
+tenantOverrides:
+  - tenant: cu-northstar
+    appVersion: "9.1"
+    note: Same vendor product, one release ahead and differently branded. Two controls are relabelled;
+      the flow is otherwise identical, so one capability serves both tenants with the aliases below.
+    entryUrlTemplate: http://localhost:8199/
+    nameAliases:
+      Retrieve: Search
+      REGULAR SHARE SAVINGS: REGULAR SAVINGS
+    refPatches: []
+    disabledSteps: []
+    extraRecoveries: []
+    allowedOrigins:
+      - http://localhost:8199
+contentHash: 1ff6b58c2d42e62bab533e434e8d0c32

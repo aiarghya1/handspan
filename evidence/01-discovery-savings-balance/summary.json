@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "capabilityId": "meridian.member.savings_balance",
+  "version": "1.0.0",
+  "artifactPath": "capabilities/meridian.member.savings_balance@1.0.0.capability.yaml",
+  "model": "scripted",
+  "turns": 15,
+  "actions": 9,
+  "blockedActions": 0,
+  "humanAssisted": false,
+  "summary": "Signed on with the stored service credential, dismissed the nightly batch notice, opened member inquiry, looked up the member by number, and read the name and the regular share savings ledger balance from the member detail screen.",
+  "lint": []
+}

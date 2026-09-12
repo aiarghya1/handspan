@@ -1,0 +1,34 @@
+{
+  "capabilityId": "meridian.member.savings_balance",
+  "capabilityVersion": "1.0.0",
+  "tenant": "meridian-demo",
+  "startedAt": "2026-09-12T10:58:33.910Z",
+  "finishedAt": "2026-09-12T10:58:35.010Z",
+  "durationMs": 1100,
+  "steps": [
+    {
+      "stepId": "s000",
+      "intent": "open Meridian Core Servicing",
+      "action": "navigate",
+      "status": "ok",
+      "durationMs": 1045
+    }
+  ],
+  "recoveries": [],
+  "degradedSteps": [],
+  "evidence": {
+    "runId": "replay-2026-09-12T10-58-33-804Z-c9d5e1",
+    "directory": "evidence/runs/replay-2026-09-12T10-58-33-804Z-c9d5e1",
+    "log": "evidence/runs/replay-2026-09-12T10-58-33-804Z-c9d5e1/run.jsonl",
+    "screenshots": []
+  },
+  "status": "escalated",
+  "escalation": {
+    "interventionId": "int-f96fc0c8",
+    "reason": "app-error",
+    "resolvedBy": "simulated-operator",
+    "resolution": "abort",
+    "note": "a simulated operator cannot resolve this; a person is needed"
+  },
+  "outputs": {}
+}

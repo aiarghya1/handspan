@@ -1,0 +1,273 @@
+{
+  "goalId": "meridian.member.savings_balance",
+  "goal": "Sign on to the servicing application, open the member inquiry screen, look up the member by their member number, and read their regular share savings balance from the share list on the member detail screen.",
+  "model": "scripted",
+  "runId": "discovery-2026-09-12T10-58-08-387Z-1755b8",
+  "startedAt": "2026-09-12T10:58:08.492Z",
+  "entries": [
+    {
+      "seq": 0,
+      "at": "2026-09-12T10:58:09.133Z",
+      "action": "fill",
+      "intent": "enter the stored service operator id",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "textbox",
+        "name": "Operator ID",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/login\"] input[name=\"op\"]",
+          "nearText": "Operator ID"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "secretKey": "meridian.username",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MERIDIAN CORE SERVICING 8.4"
+    },
+    {
+      "seq": 1,
+      "at": "2026-09-12T10:58:09.195Z",
+      "action": "fill",
+      "intent": "enter the stored service operator password",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "password",
+        "name": "Password",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/login\"] input[name=\"pw\"]",
+          "nearText": "Password"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "secretKey": "meridian.password",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MERIDIAN CORE SERVICING 8.4"
+    },
+    {
+      "seq": 2,
+      "at": "2026-09-12T10:58:09.821Z",
+      "action": "click",
+      "intent": "sign on to the servicing application",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Sign On",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div > table > tbody > tr:nth-of-type(3) > td > input",
+          "nearText": "Operator ID"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MENU",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 3,
+      "at": "2026-09-12T10:58:10.500Z",
+      "action": "click",
+      "intent": "dismiss the nightly batch notice",
+      "phase": "navigate",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Continue",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div:nth-of-type(1) > div:nth-of-type(2) > form > input"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "Select a function from the menu",
+      "triggeredRecoveries": [
+        "dismiss-maintenance-notice"
+      ],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 4,
+      "at": "2026-09-12T10:58:11.131Z",
+      "action": "click",
+      "intent": "open the member inquiry screen",
+      "phase": "navigate",
+      "risk": "read_only",
+      "ref": {
+        "role": "link",
+        "name": "Member Inquiry",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "a:nth-of-type(1)",
+          "nearText": "MENU"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MEMBER INQUIRY",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 5,
+      "at": "2026-09-12T10:58:11.237Z",
+      "action": "fill",
+      "intent": "enter the member number being looked up",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "textbox",
+        "name": "Member Number",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/member/search\"] input[name=\"mbr_no\"]",
+          "nearText": "Member Number"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "value": "12345",
+      "parameter": "memberId",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 6,
+      "at": "2026-09-12T10:58:11.874Z",
+      "action": "click",
+      "intent": "retrieve the member record",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Retrieve",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "td > table > tbody > tr:nth-of-type(2) > td > input:nth-of-type(1)",
+          "nearText": "Member Number"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MEMBER DETAIL",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 7,
+      "at": "2026-09-12T10:58:11.967Z",
+      "action": "extract",
+      "intent": "read the member's name from the detail header",
+      "phase": "read",
+      "risk": "read_only",
+      "ref": {
+        "role": "cell",
+        "name": "Name",
+        "nameMatch": "normalized",
+        "scope": {
+          "frame": {
+            "name": "main"
+          },
+          "section": "MEMBER DETAIL - 12345"
+        },
+        "ordinal": 0,
+        "hints": {
+          "selector": "tr > td > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+          "nearText": "Name"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "extract": {
+        "as": "memberName",
+        "source": {
+          "kind": "control",
+          "ref": {
+            "role": "cell",
+            "name": "Name",
+            "nameMatch": "normalized",
+            "scope": {
+              "frame": {
+                "name": "main"
+              },
+              "section": "MEMBER DETAIL - 12345"
+            },
+            "ordinal": 0,
+            "hints": {
+              "selector": "tr > td > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2)",
+              "nearText": "Name"
+            }
+          }
+        },
+        "sampleShape": "14 chars"
+      }
+    },
+    {
+      "seq": 8,
+      "at": "2026-09-12T10:58:11.973Z",
+      "action": "extract",
+      "intent": "read the ledger balance from the regular share savings row of the share grid",
+      "phase": "read",
+      "risk": "read_only",
+      "ref": {
+        "role": "cell",
+        "name": "Balance",
+        "nameMatch": "normalized",
+        "scope": {
+          "frame": {
+            "name": "main"
+          },
+          "rowContaining": "REGULAR SHARE SAVINGS"
+        },
+        "hints": {
+          "selector": "div:nth-of-type(3) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(3)",
+          "nearText": "Balance"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "extract": {
+        "as": "savingsBalance",
+        "source": {
+          "kind": "control",
+          "ref": {
+            "role": "cell",
+            "name": "Balance",
+            "nameMatch": "normalized",
+            "scope": {
+              "frame": {
+                "name": "main"
+              },
+              "rowContaining": "REGULAR SHARE SAVINGS"
+            },
+            "hints": {
+              "selector": "div:nth-of-type(3) > table > tbody > tr:nth-of-type(2) > td:nth-of-type(3)",
+              "nearText": "Balance"
+            }
+          }
+        },
+        "sampleShape": "7 chars"
+      }
+    }
+  ],
+  "declaredOutcomes": [
+    {
+      "id": "MEMBER_NOT_FOUND",
+      "description": "The member number does not exist on this core.",
+      "whenText": "No member found for",
+      "disposition": "return"
+    }
+  ],
+  "humanAssisted": false,
+  "blockedActions": 0,
+  "turns": 15,
+  "finishedAt": "2026-09-12T10:58:11.974Z",
+  "summary": "Signed on with the stored service credential, dismissed the nightly batch notice, opened member inquiry, looked up the member by number, and read the name and the regular share savings ledger balance from the member detail screen.",
+  "successText": "MEMBER DETAIL"
+}

@@ -1,0 +1,152 @@
+[
+  {
+    "name": "meridian__member__savings_balance",
+    "description": "Look up a member by member number in Meridian Core Servicing and return the balance of their regular share savings account, along with the member's name for confirmation. Read-only.\nReturns on success:\n  memberName (string): The member's name as held on the core, for the caller to confirm identity.\n  savingsBalance (money): Ledger balance of the regular share savings account.\nMay instead return one of these business outcomes, which are answers rather than errors:\n  MEMBER_NOT_FOUND: The member number does not exist on this core. A valid answer, not a fault.\n  FIELD_VALIDATION_REJECTED: The application rejected a field value. Returned to the caller so it can correct the input rather than retrying the same value.\nRisk tier: read_only.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "memberId": {
+          "type": "string",
+          "description": "The member's 5-digit member number. (pii-id)",
+          "pattern": "^\\d{5}$"
+        }
+      },
+      "required": [
+        "memberId"
+      ],
+      "additionalProperties": false
+    },
+    "handspan": {
+      "capabilityId": "meridian.member.savings_balance",
+      "version": "1.0.0",
+      "riskTier": "read_only",
+      "invocable": true,
+      "returns": {
+        "memberName": {
+          "type": "string",
+          "description": "The member's name as held on the core, for the caller to confirm identity.",
+          "sensitivity": "pii"
+        },
+        "savingsBalance": {
+          "type": "money",
+          "description": "Ledger balance of the regular share savings account.",
+          "sensitivity": "account"
+        }
+      },
+      "outcomes": [
+        {
+          "id": "MEMBER_NOT_FOUND",
+          "description": "The member number does not exist on this core. A valid answer, not a fault.",
+          "disposition": "return"
+        },
+        {
+          "id": "PERMISSION_DENIED",
+          "description": "The signed-on operator lacks the entitlement for this record. Routed to a human because an operator with the right entitlement can complete the work, which a retry never will.",
+          "disposition": "escalate"
+        },
+        {
+          "id": "FIELD_VALIDATION_REJECTED",
+          "description": "The application rejected a field value. Returned to the caller so it can correct the input rather than retrying the same value.",
+          "disposition": "return"
+        },
+        {
+          "id": "APP_ERROR",
+          "description": "The application itself failed - a transaction abend. Escalated rather than returned: nothing the caller can do with this, and a person needs the reference number to raise it with the service desk.",
+          "disposition": "escalate"
+        },
+        {
+          "id": "SIGNON_REJECTED",
+          "description": "The stored operator credential was refused. Escalated because it is an estate problem - a locked or rotated service account - and no retry fixes it.",
+          "disposition": "escalate"
+        }
+      ],
+      "stability": {
+        "runs": 0,
+        "successes": 0
+      }
+    }
+  },
+  {
+    "name": "meridian__member__subaccount_open",
+    "description": "Open a new share sub-account on an existing member in Meridian Core Servicing and return the confirmation reference. Commits a new share record; requires approval before unattended use.\nReturns on success:\n  confirmationNumber (string): The posting confirmation reference shown on the final screen.\nMay instead return one of these business outcomes, which are answers rather than errors:\n  PRODUCT_NOT_PERMITTED: The share product is not valid for this member class.\n  MEMBER_NOT_FOUND: The member number does not exist on this core. A valid answer, not a fault.\n  FIELD_VALIDATION_REJECTED: The application rejected a field value. Returned to the caller so it can correct the input rather than retrying the same value.\nRisk tier: irreversible. This capability commits changes that cannot be undone from the screen.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "memberId": {
+          "type": "string",
+          "description": "The member's 5-digit member number. (pii-id)",
+          "pattern": "^\\d{5}$"
+        },
+        "productCode": {
+          "type": "string",
+          "description": "Share product code for the new sub-account.",
+          "enum": [
+            "SV02",
+            "VC01",
+            "HD01"
+          ]
+        },
+        "initialDeposit": {
+          "type": "number",
+          "description": "Opening deposit amount in dollars.",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "memberId",
+        "productCode",
+        "initialDeposit"
+      ],
+      "additionalProperties": false
+    },
+    "handspan": {
+      "capabilityId": "meridian.member.subaccount_open",
+      "version": "1.0.0",
+      "riskTier": "irreversible",
+      "invocable": true,
+      "returns": {
+        "confirmationNumber": {
+          "type": "string",
+          "description": "The posting confirmation reference shown on the final screen.",
+          "sensitivity": "none"
+        }
+      },
+      "outcomes": [
+        {
+          "id": "PRODUCT_NOT_PERMITTED",
+          "description": "The share product is not valid for this member class.",
+          "disposition": "return"
+        },
+        {
+          "id": "MEMBER_NOT_FOUND",
+          "description": "The member number does not exist on this core. A valid answer, not a fault.",
+          "disposition": "return"
+        },
+        {
+          "id": "PERMISSION_DENIED",
+          "description": "The signed-on operator lacks the entitlement for this record. Routed to a human because an operator with the right entitlement can complete the work, which a retry never will.",
+          "disposition": "escalate"
+        },
+        {
+          "id": "FIELD_VALIDATION_REJECTED",
+          "description": "The application rejected a field value. Returned to the caller so it can correct the input rather than retrying the same value.",
+          "disposition": "return"
+        },
+        {
+          "id": "APP_ERROR",
+          "description": "The application itself failed - a transaction abend. Escalated rather than returned: nothing the caller can do with this, and a person needs the reference number to raise it with the service desk.",
+          "disposition": "escalate"
+        },
+        {
+          "id": "SIGNON_REJECTED",
+          "description": "The stored operator credential was refused. Escalated because it is an estate problem - a locked or rotated service account - and no retry fixes it.",
+          "disposition": "escalate"
+        }
+      ],
+      "stability": {
+        "runs": 0,
+        "successes": 0
+      }
+    }
+  }
+]
