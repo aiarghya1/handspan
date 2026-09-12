@@ -1,0 +1,304 @@
+{
+  "goalId": "meridian.member.subaccount_open",
+  "goal": "Sign on, look up the member by member number, start the open sub-account function for them, choose the requested product and initial deposit, continue to the confirmation screen, and post the new sub-account. Read back the confirmation reference from the final screen.",
+  "model": "scripted",
+  "runId": "discovery-2026-09-12T10-58-41-335Z-f88740",
+  "startedAt": "2026-09-12T10:58:41.444Z",
+  "entries": [
+    {
+      "seq": 0,
+      "at": "2026-09-12T10:58:42.063Z",
+      "action": "fill",
+      "intent": "enter the stored service operator id",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "textbox",
+        "name": "Operator ID",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/login\"] input[name=\"op\"]",
+          "nearText": "Operator ID"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "secretKey": "meridian.username",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MERIDIAN CORE SERVICING 8.4"
+    },
+    {
+      "seq": 1,
+      "at": "2026-09-12T10:58:42.143Z",
+      "action": "fill",
+      "intent": "enter the stored service operator password",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "password",
+        "name": "Password",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/login\"] input[name=\"pw\"]",
+          "nearText": "Password"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "secretKey": "meridian.password",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MERIDIAN CORE SERVICING 8.4"
+    },
+    {
+      "seq": 2,
+      "at": "2026-09-12T10:58:42.768Z",
+      "action": "click",
+      "intent": "sign on to the servicing application",
+      "phase": "signon",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Sign On",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div > table > tbody > tr:nth-of-type(3) > td > input",
+          "nearText": "Operator ID"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MENU",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 3,
+      "at": "2026-09-12T10:58:43.446Z",
+      "action": "click",
+      "intent": "dismiss the nightly batch notice",
+      "phase": "navigate",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Continue",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div:nth-of-type(1) > div:nth-of-type(2) > form > input"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "Select a function from the menu",
+      "triggeredRecoveries": [
+        "dismiss-maintenance-notice"
+      ],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 4,
+      "at": "2026-09-12T10:58:44.080Z",
+      "action": "click",
+      "intent": "open the member inquiry screen",
+      "phase": "navigate",
+      "risk": "read_only",
+      "ref": {
+        "role": "link",
+        "name": "Member Inquiry",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "a:nth-of-type(1)",
+          "nearText": "MENU"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MEMBER INQUIRY",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 5,
+      "at": "2026-09-12T10:58:44.181Z",
+      "action": "fill",
+      "intent": "enter the member number the sub-account is for",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "textbox",
+        "name": "Member Number",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/member/search\"] input[name=\"mbr_no\"]",
+          "nearText": "Member Number"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "value": "23456",
+      "parameter": "memberId",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 6,
+      "at": "2026-09-12T10:58:44.817Z",
+      "action": "click",
+      "intent": "retrieve the member record",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Retrieve",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "td > table > tbody > tr:nth-of-type(2) > td > input:nth-of-type(1)",
+          "nearText": "Member Number"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "MEMBER DETAIL",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 7,
+      "at": "2026-09-12T10:58:45.493Z",
+      "action": "click",
+      "intent": "start the open sub-account function for this member",
+      "phase": "navigate",
+      "risk": "reversible_write",
+      "ref": {
+        "role": "link",
+        "name": "Open Sub-Account",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div:nth-of-type(4) > a:nth-of-type(1)"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "OPEN SUB-ACCOUNT",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 8,
+      "at": "2026-09-12T10:58:46.843Z",
+      "action": "select",
+      "intent": "choose the share product for the new sub-account",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "combobox",
+        "name": "Product",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/member/23456/subaccount\"] select[name=\"prod\"]",
+          "nearText": "Product"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "value": "VC01",
+      "parameter": "productCode",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 9,
+      "at": "2026-09-12T10:58:46.916Z",
+      "action": "fill",
+      "intent": "enter the opening deposit amount",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "textbox",
+        "name": "Initial Deposit",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form[action=\"/member/23456/subaccount\"] input[name=\"amt\"]",
+          "nearText": "Initial Deposit"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "value": "25.00",
+      "parameter": "initialDeposit",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 10,
+      "at": "2026-09-12T10:58:47.547Z",
+      "action": "click",
+      "intent": "continue to the confirmation screen",
+      "phase": "input",
+      "risk": "read_only",
+      "ref": {
+        "role": "button",
+        "name": "Continue",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "div > table > tbody > tr:nth-of-type(3) > td > input",
+          "nearText": "Product"
+        }
+      },
+      "resolvedTier": "role+name+scope",
+      "expect": "CONFIRM SUB-ACCOUNT",
+      "triggeredRecoveries": [],
+      "urlAfter": "http://localhost:8099/",
+      "sectionAfter": "MENU"
+    },
+    {
+      "seq": 11,
+      "at": "2026-09-12T10:58:48.286Z",
+      "action": "click",
+      "intent": "post the new sub-account",
+      "phase": "commit",
+      "risk": "irreversible",
+      "ref": {
+        "role": "button",
+        "name": "Confirm and Post",
+        "nameMatch": "normalized",
+        "hints": {
+          "selector": "form > div > input"
+        }
+      },
+      "expect": "SUB-ACCOUNT POSTED",
+      "triggeredRecoveries": [],
+      "humanAssisted": true,
+      "urlAfter": "http://localhost:8099/"
+    },
+    {
+      "seq": 12,
+      "at": "2026-09-12T10:58:48.333Z",
+      "action": "extract",
+      "intent": "read the posting confirmation reference from the final screen",
+      "phase": "read",
+      "risk": "read_only",
+      "extract": {
+        "as": "confirmationNumber",
+        "source": {
+          "kind": "text",
+          "pattern": "Confirmation (\\d+-\\d+)"
+        },
+        "sampleShape": "9 chars"
+      }
+    }
+  ],
+  "declaredOutcomes": [
+    {
+      "id": "PRODUCT_NOT_PERMITTED",
+      "description": "The share product is not valid for this member class.",
+      "whenText": "is not valid for this member class",
+      "disposition": "return"
+    }
+  ],
+  "humanAssisted": true,
+  "blockedActions": 1,
+  "turns": 22,
+  "finishedAt": "2026-09-12T10:58:48.334Z",
+  "summary": "Signed on, looked up the member, opened the sub-account function, chose the requested product and opening deposit, continued to the confirmation screen, and had an operator post it because posting is irreversible. Read back the confirmation reference.",
+  "successText": "SUB-ACCOUNT POSTED"
+}

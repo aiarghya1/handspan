@@ -1,0 +1,224 @@
+{
+  "capabilityId": "meridian.member.subaccount_open",
+  "capabilityVersion": "1.0.0",
+  "tenant": "meridian-demo",
+  "startedAt": "2026-09-12T10:59:29.754Z",
+  "finishedAt": "2026-09-12T10:59:38.314Z",
+  "durationMs": 8560,
+  "steps": [
+    {
+      "stepId": "s000",
+      "intent": "open Meridian Core Servicing",
+      "action": "navigate",
+      "status": "ok",
+      "durationMs": 1059,
+      "checkpoint": {
+        "ok": true,
+        "expected": "a textbox named \"Operator ID\" is on screen",
+        "observed": "found textbox \"Operator ID\" at tier role+name+scope",
+        "waitedMs": 6
+      }
+    },
+    {
+      "stepId": "s001",
+      "intent": "enter the stored service operator id",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 66,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s002",
+      "intent": "enter the stored service operator password",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 50,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s003",
+      "intent": "sign on to the servicing application",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 593,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MENU\"",
+        "observed": "found \"MENU\"",
+        "waitedMs": 10
+      }
+    },
+    {
+      "stepId": "s004",
+      "intent": "dismiss the nightly batch notice (only if present; also handled by recovery \"dismiss-maintenance-notice\")",
+      "action": "click",
+      "status": "skipped",
+      "durationMs": 2184,
+      "recordedTier": "role+name+scope",
+      "note": "no dialog named \"Scheduled Maintenance\" on screen"
+    },
+    {
+      "stepId": "s005",
+      "intent": "open the member inquiry screen",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 595,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER INQUIRY\"",
+        "observed": "found \"MEMBER INQUIRY\"",
+        "waitedMs": 9
+      }
+    },
+    {
+      "stepId": "s006",
+      "intent": "enter the member number the sub-account is for",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 43,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "textbox \"Member Number\" matches /^\\d{5}$/",
+        "observed": "value matches /^\\d{5}$/",
+        "waitedMs": 4
+      }
+    },
+    {
+      "stepId": "s007",
+      "intent": "retrieve the member record",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 596,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER DETAIL\"",
+        "observed": "found \"MEMBER DETAIL\"",
+        "waitedMs": 10
+      }
+    },
+    {
+      "stepId": "s008",
+      "intent": "start the open sub-account function for this member",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 599,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"OPEN SUB-ACCOUNT\"",
+        "observed": "found \"OPEN SUB-ACCOUNT\"",
+        "waitedMs": 8
+      }
+    },
+    {
+      "stepId": "s009",
+      "intent": "choose the share product for the new sub-account",
+      "action": "select",
+      "status": "ok",
+      "durationMs": 1275,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "combobox \"Product\" matches /\\S/",
+        "observed": "value matches /\\S/",
+        "waitedMs": 9
+      }
+    },
+    {
+      "stepId": "s010",
+      "intent": "enter the opening deposit amount",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 45,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "textbox \"Initial Deposit\" matches /\\S/",
+        "observed": "value matches /\\S/",
+        "waitedMs": 5
+      }
+    },
+    {
+      "stepId": "s011",
+      "intent": "continue to the confirmation screen",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 595,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"CONFIRM SUB-ACCOUNT\"",
+        "observed": "found \"CONFIRM SUB-ACCOUNT\"",
+        "waitedMs": 8
+      }
+    },
+    {
+      "stepId": "s012",
+      "intent": "post the new sub-account",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 595,
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"SUB-ACCOUNT POSTED\"",
+        "observed": "found \"SUB-ACCOUNT POSTED\"",
+        "waitedMs": 7
+      }
+    },
+    {
+      "stepId": "s013",
+      "intent": "read the posting confirmation reference from the final screen",
+      "action": "extract",
+      "status": "ok",
+      "durationMs": 7
+    },
+    {
+      "stepId": "s999",
+      "intent": "confirm the goal is complete",
+      "action": "assert",
+      "status": "ok",
+      "durationMs": 4,
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"SUB-ACCOUNT POSTED\"",
+        "observed": "found \"SUB-ACCOUNT POSTED\"",
+        "waitedMs": 4
+      }
+    }
+  ],
+  "recoveries": [
+    {
+      "recoveryId": "dismiss-maintenance-notice",
+      "atStepId": "s004",
+      "trigger": "found dialog \"Scheduled Maintenance\" at tier role+name+scope",
+      "appliedCount": 1,
+      "succeeded": true
+    }
+  ],
+  "degradedSteps": [],
+  "evidence": {
+    "runId": "replay-2026-09-12T10-59-29-380Z-2cc393",
+    "directory": "evidence/runs/replay-2026-09-12T10-59-29-380Z-2cc393",
+    "log": "evidence/runs/replay-2026-09-12T10-59-29-380Z-2cc393/run.jsonl",
+    "screenshots": []
+  },
+  "status": "success",
+  "outputs": {
+    "confirmationNumber": "8831-2002"
+  }
+}

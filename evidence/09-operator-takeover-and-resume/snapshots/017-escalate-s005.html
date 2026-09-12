@@ -1,0 +1,50 @@
+<!-- frame top : http://localhost:8099/ -->
+<html><head><title>MERIDIAN CORE SERVICING 8.4</title></head>
+    <frameset cols="170,*" frameborder="1">
+      <frame name="nav" src="/nav">
+      <frame name="main" src="/main">
+    </frameset></html>
+
+<!-- frame nav : http://localhost:8099/nav -->
+<html><head><title>Menu</title><style>
+  body { font: 12px Verdana, Geneva, sans-serif; background: #d4d0c8; margin: 0; padding: 0; }
+  table { border-collapse: collapse; }
+  td { font: 12px Verdana, Geneva, sans-serif; padding: 2px 4px; }
+  .hdr { background: #1f3864; color: #fff; padding: 5px 8px; font-weight: bold; letter-spacing: .04em; }
+  .panel { border: 2px inset #fff; background: #ece9d8; margin: 8px; padding: 6px; }
+  .err { background: #ffe8e8; border: 1px solid #a00; color: #900; padding: 6px; margin: 8px; font-weight: bold; }
+  .warn { background: #fffbe6; border: 1px solid #b8860b; padding: 6px; margin: 8px; }
+  .ok { background: #eaffea; border: 1px solid #060; padding: 6px; margin: 8px; }
+  .grid td { border: 1px solid #9a9a8c; }
+  .grid .h td { background: #b6c4de; font-weight: bold; }
+  .amt { text-align: right; font-family: "Courier New", monospace; }
+  .modal { position: fixed; top: 80px; left: 60px; width: 440px; background: #ece9d8;
+           border: 3px outset #fff; box-shadow: 4px 4px 0 #666; z-index: 99; }
+  .navlnk { display: block; padding: 3px 6px; color: #1f3864; }
+  input, select { font: 12px Verdana, sans-serif; }
+</style></head><body><div class="hdr" style="font-size:10px">MENU</div>
+     <a class="navlnk" href="/member/search" target="main" data-hs-h="f1c0">Member Inquiry</a>
+     <a class="navlnk" href="/main" target="main" data-hs-h="f1c1">Home</a>
+     <a class="navlnk" href="/reports" target="main" data-hs-h="f1c2">Reports</a>
+     <a class="navlnk" href="/logout" target="_top" data-hs-h="f1c3">Sign Off</a></body></html>
+
+<!-- frame main : http://localhost:8099/member/search -->
+<html><head><title>System Error</title><style>
+  body { font: 12px Verdana, Geneva, sans-serif; background: #d4d0c8; margin: 0; padding: 0; }
+  table { border-collapse: collapse; }
+  td { font: 12px Verdana, Geneva, sans-serif; padding: 2px 4px; }
+  .hdr { background: #1f3864; color: #fff; padding: 5px 8px; font-weight: bold; letter-spacing: .04em; }
+  .panel { border: 2px inset #fff; background: #ece9d8; margin: 8px; padding: 6px; }
+  .err { background: #ffe8e8; border: 1px solid #a00; color: #900; padding: 6px; margin: 8px; font-weight: bold; }
+  .warn { background: #fffbe6; border: 1px solid #b8860b; padding: 6px; margin: 8px; }
+  .ok { background: #eaffea; border: 1px solid #060; padding: 6px; margin: 8px; }
+  .grid td { border: 1px solid #9a9a8c; }
+  .grid .h td { background: #b6c4de; font-weight: bold; }
+  .amt { text-align: right; font-family: "Courier New", monospace; }
+  .modal { position: fixed; top: 80px; left: 60px; width: 440px; background: #ece9d8;
+           border: 3px outset #fff; box-shadow: 4px 4px 0 #666; z-index: 99; }
+  .navlnk { display: block; padding: 3px 6px; color: #1f3864; }
+  input, select { font: 12px Verdana, sans-serif; }
+</style></head><body><div class="hdr">MERIDIAN CORE SERVICING 8.4</div>
+     <div class="err">CICS ABEND ASRA &nbsp; TRAN=MBRI &nbsp; REF=5C9CC938<br>
+     An unexpected condition occurred. Contact the service desk.</div></body></html>

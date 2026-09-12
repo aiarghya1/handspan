@@ -1,0 +1,129 @@
+{
+  "capabilityId": "meridian.member.savings_balance",
+  "capabilityVersion": "1.0.0",
+  "tenant": "meridian-demo",
+  "startedAt": "2026-09-12T10:58:18.410Z",
+  "finishedAt": "2026-09-12T10:58:23.711Z",
+  "durationMs": 5301,
+  "steps": [
+    {
+      "stepId": "s000",
+      "intent": "open Meridian Core Servicing",
+      "action": "navigate",
+      "status": "ok",
+      "durationMs": 1028,
+      "checkpoint": {
+        "ok": true,
+        "expected": "a textbox named \"Operator ID\" is on screen",
+        "observed": "found textbox \"Operator ID\" at tier role+name+scope",
+        "waitedMs": 6
+      }
+    },
+    {
+      "stepId": "s001",
+      "intent": "enter the stored service operator id",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 72,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s002",
+      "intent": "enter the stored service operator password",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 62,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    },
+    {
+      "stepId": "s003",
+      "intent": "sign on to the servicing application",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 601,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MENU\"",
+        "observed": "found \"MENU\"",
+        "waitedMs": 7
+      }
+    },
+    {
+      "stepId": "s004",
+      "intent": "dismiss the nightly batch notice (only if present; also handled by recovery \"dismiss-maintenance-notice\")",
+      "action": "click",
+      "status": "skipped",
+      "durationMs": 2179,
+      "recordedTier": "role+name+scope",
+      "note": "no dialog named \"Scheduled Maintenance\" on screen"
+    },
+    {
+      "stepId": "s005",
+      "intent": "open the member inquiry screen",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 601,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "the screen shows \"MEMBER INQUIRY\"",
+        "observed": "found \"MEMBER INQUIRY\"",
+        "waitedMs": 9
+      }
+    },
+    {
+      "stepId": "s006",
+      "intent": "enter the member number being looked up",
+      "action": "fill",
+      "status": "ok",
+      "durationMs": 42,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope",
+      "checkpoint": {
+        "ok": true,
+        "expected": "textbox \"Member Number\" matches /^\\d{5}$/",
+        "observed": "value matches /^\\d{5}$/",
+        "waitedMs": 4
+      }
+    },
+    {
+      "stepId": "s007",
+      "intent": "retrieve the member record",
+      "action": "click",
+      "status": "ok",
+      "durationMs": 592,
+      "recordedTier": "role+name+scope",
+      "resolvedTier": "role+name+scope"
+    }
+  ],
+  "recoveries": [
+    {
+      "recoveryId": "dismiss-maintenance-notice",
+      "atStepId": "s004",
+      "trigger": "found dialog \"Scheduled Maintenance\" at tier role+name+scope",
+      "appliedCount": 1,
+      "succeeded": true
+    }
+  ],
+  "degradedSteps": [],
+  "evidence": {
+    "runId": "replay-2026-09-12T10-58-18-305Z-946475",
+    "directory": "evidence/runs/replay-2026-09-12T10-58-18-305Z-946475",
+    "log": "evidence/runs/replay-2026-09-12T10-58-18-305Z-946475/run.jsonl",
+    "screenshots": []
+  },
+  "status": "business_outcome",
+  "outcome": {
+    "id": "MEMBER_NOT_FOUND",
+    "description": "The member number does not exist on this core. A valid answer, not a fault.",
+    "detail": "found \"No member found for\"",
+    "data": {
+      "searchedFor": "99999"
+    }
+  }
+}

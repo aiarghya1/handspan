@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "capabilityId": "meridian.member.subaccount_open",
+  "version": "1.0.0",
+  "artifactPath": "capabilities/meridian.member.subaccount_open@1.0.0.capability.yaml",
+  "model": "scripted",
+  "turns": 22,
+  "actions": 13,
+  "blockedActions": 1,
+  "humanAssisted": true,
+  "summary": "Signed on, looked up the member, opened the sub-account function, chose the requested product and opening deposit, continued to the confirmation screen, and had an operator post it because posting is irreversible. Read back the confirmation reference.",
+  "lint": []
+}
