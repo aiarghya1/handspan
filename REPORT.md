@@ -569,7 +569,12 @@ To produce it, set `ANTHROPIC_API_KEY` and drop the `--script` flag:
 
 ```bash
 npm run discover -- config/goals/member-savings-balance.goal.yaml
+npx tsx scripts/curate-evidence.ts
 ```
+
+The curator prefers a model-driven discovery over a scripted one, so the second
+command moves the genuine run into the committed evidence without disturbing the
+slots it does not match.
 
 That is a single run against a local app, so it costs very little. The run
 directory it writes under `evidence/runs/` has the model's reasoning in

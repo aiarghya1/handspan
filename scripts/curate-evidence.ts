@@ -14,6 +14,8 @@ interface Summary {
   status?: string;
   /** Discovery summaries only. */
   artifactPath?: string;
+  /** The planner that drove a discovery run; 'scripted' when there was no model. */
+  model?: string;
   version?: string;
   actions?: number;
   turns?: number;
@@ -105,8 +107,23 @@ const ids = readdirSync(RUNS).sort();
 const taken = new Set<string>();
 const placed: Array<{ dir: string; caption: string; id: string; s: Summary }> = [];
 
+/**
+ * Among the runs that fit a slot, prefer one a model actually drove. The demo
+ * is scripted by design, so a genuine discovery run sitting alongside it would
+ * otherwise lose the slot to whichever ran first - and the genuine one is
+ * precisely the run the repository exists to show. Replay summaries carry no
+ * model, so for those this is the earliest match, exactly as before.
+ */
+const pickFor = (want: (typeof WANTED)[number]): string | undefined => {
+  const matches = ids.filter((i) => !taken.has(i) && want.match(summaryOf(i), i));
+  return matches.find((i) => {
+    const model = summaryOf(i).model;
+    return model !== undefined && model !== 'scripted';
+  }) ?? matches[0];
+};
+
 for (const want of WANTED) {
-  const id = ids.find((i) => !taken.has(i) && want.match(summaryOf(i), i));
+  const id = pickFor(want);
   if (!id) {
     console.error(`  no run matched ${want.dir}`);
     continue;
@@ -117,7 +134,8 @@ for (const want of WANTED) {
   mkdirSync(dest, { recursive: true });
   cpSync(join(RUNS, id), dest, { recursive: true });
   placed.push({ dir: want.dir, caption: want.caption, id, s: summaryOf(id) });
-  console.error(`  ${want.dir} <- ${id}`);
+  const model = summaryOf(id).model;
+  console.error(`  ${want.dir} <- ${id}${model && model !== 'scripted' ? `  (model: ${model})` : ''}`);
 }
 
 // The artifact discovery produced, kept beside the runs so the repo is readable

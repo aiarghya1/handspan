@@ -69,11 +69,22 @@ compiler, same artifact — no key, no network, deterministic. That is how the
 test suite and `npm run demo` work.
 
 > **The evidence in this repository was produced with `--script`**, because no
-> model credential was available where it was built. To produce a genuine
-> model-driven discovery run, set a key and drop the flag:
-> `npm run discover -- config/goals/member-savings-balance.goal.yaml`.
-> It is one run against a local app. See the last section of
+> model credential was available where it was built. See the last section of
 > [REPORT.md](REPORT.md).
+
+To replace the scripted discovery evidence with a genuine model-driven run, set
+`ANTHROPIC_API_KEY`, start both target-app instances, and run:
+
+```bash
+npm run discover -- config/goals/member-savings-balance.goal.yaml
+npx tsx scripts/curate-evidence.ts
+```
+
+The curator prefers a model-driven discovery over a scripted one, so the real
+run takes the `01-discovery-savings-balance` slot and the index is rewritten to
+match. Slots with no matching run keep whatever is already committed. Because
+re-recording bumps the minor version, the genuine run lands as `@1.1.0`
+alongside the scripted `@1.0.0`.
 
 ## Demo path
 
