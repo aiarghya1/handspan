@@ -1,0 +1,164 @@
+# App profile for the mock core-servicing system.
+#
+# Everything here is a fact about the APPLICATION, not about any one flow, and
+# is merged into every capability recorded against it. Writing these once per
+# app rather than once per capability is the difference between 2 files and
+# 20 per tenant, and it is the only way the runtime conditions get written by
+# someone who has actually seen the app fail.
+
+id: meridian-core-servicing
+title: Meridian Core Servicing
+vendor: Meridian
+vendorVersion: "8.4"
+surface: web-legacy
+
+secrets:
+  - meridian.username
+  - meridian.password
+
+policy:
+  allowedPathPrefixes:
+    - /
+  sensitivePatterns:
+    # Tax ids are rendered as plain text on the member detail screen.
+    - '\b\d{3}-\d{2}-\d{4}\b'
+
+# ---------------------------------------------------------------------------
+# Business outcomes: legitimate answers that are not success.
+# ---------------------------------------------------------------------------
+outcomes:
+  - id: MEMBER_NOT_FOUND
+    description: The member number does not exist on this core. A valid answer, not a fault.
+    detect:
+      kind: textPresent
+      text: 'No member found for'
+    disposition: return
+    extract:
+      - as: searchedFor
+        source:
+          kind: text
+          pattern: 'No member found for (\d+)'
+        transform: trim
+
+  - id: PERMISSION_DENIED
+    description: >-
+      The signed-on operator lacks the entitlement for this record. Routed to a
+      human because an operator with the right entitlement can complete the work,
+      which a retry never will.
+    detect:
+      kind: textPresent
+      text: 'is restricted'
+    disposition: escalate
+
+  - id: FIELD_VALIDATION_REJECTED
+    description: >-
+      The application rejected a field value. Returned to the caller so it can
+      correct the input rather than retrying the same value.
+    detect:
+      kind: anyOf
+      of:
+        - kind: textPresent
+          text: 'must be exactly'
+        - kind: textPresent
+          text: 'is not valid for this member class'
+        - kind: textPresent
+          text: 'must be a numeric amount'
+    disposition: return
+    extract:
+      - as: validationMessage
+        source:
+          kind: text
+          pattern: '(Member Number must be[^.]*\.|[A-Z][^.]*is not valid for this member class\.|Initial Deposit must be[^.]*\.)'
+        transform: trim
+
+  - id: APP_ERROR
+    description: >-
+      The application itself failed - a transaction abend. Escalated rather than
+      returned: nothing the caller can do with this, and a person needs the
+      reference number to raise it with the service desk.
+    detect:
+      kind: anyOf
+      of:
+        - kind: textPresent
+          text: 'ABEND'
+        - kind: textPresent
+          text: 'An unexpected condition occurred'
+    disposition: escalate
+    extract:
+      - as: abendReference
+        source:
+          kind: text
+          pattern: 'REF=([A-Z0-9]+)'
+        transform: trim
+
+  - id: SIGNON_REJECTED
+    description: >-
+      The stored operator credential was refused. Escalated because it is an
+      estate problem - a locked or rotated service account - and no retry fixes it.
+    detect:
+      kind: textPresent
+      text: 'Sign-on failed'
+    disposition: escalate
+
+# ---------------------------------------------------------------------------
+# Recoveries: transient conditions with a bounded, declared response.
+# ---------------------------------------------------------------------------
+recoveries:
+  - id: dismiss-maintenance-notice
+    description: >-
+      The nightly-batch notice appears on the first visit to the home screen of
+      each session, and after any server restart. Dismissing it is the only way
+      forward and carries no risk.
+    when:
+      kind: controlPresent
+      ref:
+        role: dialog
+        name: 'Scheduled Maintenance'
+        nameMatch: contains
+    do:
+      - kind: click
+        ref:
+          role: button
+          name: Continue
+          scope:
+            section: Scheduled Maintenance
+    maxPerRun: 3
+    retryStep: true
+
+  - id: reauthenticate-expired-session
+    description: >-
+      The session times out on inactivity and every screen then shows the sign-on
+      form. Recovering means more than signing on again: the flow has to be
+      rebuilt to the point it was interrupted, which is what `replayFrom: signon`
+      does. The explicit navigate first is deliberate - signing on inside a
+      frame leaves a frameset nested inside a frameset, and every later frame
+      reference becomes ambiguous.
+    when:
+      kind: textPresent
+      text: 'session has expired'
+    do:
+      - kind: navigate
+        url: '{{baseUrl}}/'
+      - kind: replayFrom
+        phase: signon
+    maxPerRun: 2
+    retryStep: true
+
+# ---------------------------------------------------------------------------
+# The estate. Many institutions run this same vendor product.
+# ---------------------------------------------------------------------------
+tenants:
+  meridian-demo:
+    baseUrl: http://localhost:8099
+    appVersion: "8.4"
+    note: The tenant capabilities are recorded against.
+  cu-northstar:
+    baseUrl: http://localhost:8199
+    appVersion: "9.1"
+    note: >-
+      Same vendor product, one release ahead and differently branded. Two
+      controls are relabelled; the flow is otherwise identical, so one capability
+      serves both tenants with the aliases below.
+    nameAliases:
+      Retrieve: Search
+      REGULAR SHARE SAVINGS: REGULAR SAVINGS
