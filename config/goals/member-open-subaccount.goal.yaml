@@ -1,0 +1,49 @@
+# A flow whose final step commits data. Discovery cannot perform that step: the
+# policy routes it to a human, who posts it and hands control back. The recorded
+# artifact therefore carries an irreversible step and requires approval before
+# it will ever replay unattended.
+
+id: meridian.member.subaccount_open
+title: Open a sub-account for an existing member
+summary: >-
+  Open a new share sub-account on an existing member in Meridian Core Servicing
+  and return the confirmation reference. Commits a new share record; requires
+  approval before unattended use.
+
+goal: >-
+  Sign on, look up the member by member number, start the open sub-account
+  function for them, choose the requested product and initial deposit, continue
+  to the confirmation screen, and post the new sub-account. Read back the
+  confirmation reference from the final screen.
+
+app: meridian-core-servicing
+tenant: meridian-demo
+entryPath: /
+
+params:
+  memberId:
+    type: string
+    description: The member's 5-digit member number.
+    required: true
+    pattern: '^\d{5}$'
+    sensitivity: pii-id
+    value: "23456"
+  productCode:
+    type: string
+    description: Share product code for the new sub-account.
+    required: true
+    enum: ['SV02', 'VC01', 'HD01']
+    value: "VC01"
+  initialDeposit:
+    type: money
+    description: Opening deposit amount in dollars.
+    required: true
+    minimum: 0
+    value: "25.00"
+
+returns:
+  confirmationNumber:
+    type: string
+    description: The posting confirmation reference shown on the final screen.
+
+maxSteps: 30

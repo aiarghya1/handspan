@@ -1,0 +1,43 @@
+# The public contract is declared here by a person. The model works out how.
+#
+# Parameter values are supplied so discovery can tell the difference between a
+# value it typed because the goal gave it one (parameterize) and a value it
+# typed because the screen demanded one (keep literal).
+
+id: meridian.member.savings_balance
+title: Read a member's regular share savings balance
+summary: >-
+  Look up a member by member number in Meridian Core Servicing and return the
+  balance of their regular share savings account, along with the member's name
+  for confirmation. Read-only.
+
+goal: >-
+  Sign on to the servicing application, open the member inquiry screen, look up
+  the member by their member number, and read their regular share savings
+  balance from the share list on the member detail screen.
+
+app: meridian-core-servicing
+tenant: meridian-demo
+entryPath: /
+
+params:
+  memberId:
+    type: string
+    description: The member's 5-digit member number.
+    required: true
+    pattern: '^\d{5}$'
+    sensitivity: pii-id
+    example: "10000"
+    value: "12345"
+
+returns:
+  memberName:
+    type: string
+    description: The member's name as held on the core, for the caller to confirm identity.
+    sensitivity: pii
+  savingsBalance:
+    type: money
+    description: Ledger balance of the regular share savings account.
+    sensitivity: account
+
+maxSteps: 24
