@@ -1,0 +1,13 @@
+node_modules
+dist/
+coverage/
+.env
+*.log
+.DS_Store
+
+# Live run output. Curated runs are committed under evidence/<name>/ instead.
+evidence/runs/
+
+# Artifacts produced by a local discovery run. A reference copy of each is
+# committed under evidence/ so the repo is readable without running anything.
+capabilities/

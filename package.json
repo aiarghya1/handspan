@@ -1,0 +1,44 @@
+{
+  "name": "handspan",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Record-once / replay-many computer-use capabilities for legacy back-office banking applications.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "target-app": "tsx target-app/server.ts",
+    "target-app:v9": "TARGET_APP_PORT=8199 TARGET_APP_VARIANT=v9 tsx target-app/server.ts",
+    "handspan": "tsx bin/handspan.ts",
+    "discover": "tsx bin/handspan.ts discover",
+    "replay": "tsx bin/handspan.ts replay",
+    "catalog": "tsx bin/handspan.ts catalog",
+    "operator": "tsx bin/handspan.ts operator",
+    "demo": "tsx bin/handspan.ts demo",
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "playwright": "^1.49.1",
+    "yaml": "^2.9.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^22.10.2",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^2.1.9",
+    "jsdom": "^29.1.1",
+    "supertest": "^7.2.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

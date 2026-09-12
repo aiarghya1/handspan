@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.cache/tsbuildinfo-check"
+  },
+  "include": ["src/**/*.ts", "target-app/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "bin/**/*.ts", "vitest.config.ts"]
+}
