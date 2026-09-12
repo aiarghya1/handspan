@@ -1,0 +1,57 @@
+# Ambient deployment policy. A capability artifact may narrow this; it can never
+# widen it. An artifact naming an origin this file does not permit ends up with
+# no permitted origins and fails closed.
+
+allowedOrigins:
+  - http://localhost:8099
+  - http://localhost:8199
+
+allowedPathPrefixes: []
+
+allowedActions: [navigate, click, fill, select, press, extract, assert, wait]
+
+# A click on a control whose label matches one of these commits something that
+# cannot be undone from the screen. Tuned to over-classify on purpose: a
+# needless confirmation costs a few seconds, the opposite mistake posts money.
+irreversiblePatterns:
+  - 'confirm(\s|$)'
+  - '\bconfirm and post\b'
+  - '\bpost\b'
+  - '\btransfer\b'
+  - '\bwire\b'
+  - '\bdisburse\b'
+  - '\bdelete\b'
+  - '\bremove\b'
+  - '\bclose\s+account\b'
+  - '\bapprove\b'
+  - '\bvoid\b'
+  - '\brevers(e|al)\b'
+  - '\bcharge\s?off\b'
+  - '\bwaive\b'
+
+# Labels that suggest the click creates or changes something, without
+# committing it irreversibly. "Continue" is deliberately absent: on these
+# screens it is a navigation verb far more often than a write, and classifying
+# every wizard step as a write would inflate the risk tier of read-only lookups
+# without changing what is actually gated.
+reversibleWritePatterns:
+  - '\bsave\b'
+  - '\bupdate\b'
+  - '\bcreate\b'
+  - '\badd\b'
+  - '\bopen\b'
+  - '\bapply\b'
+  - '\benrol{1,2}\b'
+
+# What discovery does when the model wants to commit something irreversible.
+onIrreversible: escalate
+
+# Operators were called in to decide, so they may commit. They are still bound
+# by the origin allowlist.
+operatorMayCommit: true
+
+maxSteps: 60
+maxDurationMs: 600000
+
+sensitivePatterns:
+  - '\b\d{3}-\d{2}-\d{4}\b'
