@@ -14,23 +14,39 @@ import { join } from 'node:path';
 
 const constructed: Array<Record<string, unknown>> = [];
 
+/** Set to make the stubbed SDK reject the beta request. */
+let betaThrows: unknown = null;
+/** Set to make the plain request the planner falls back to reject too. */
+let plainThrows: unknown = null;
+
+const finished = {
+  finalMessage: async () => ({
+    content: [
+      { type: 'text', text: 'I will stop here.' },
+      { type: 'tool_use', id: 't1', name: 'finish', input: { summary: 'nothing to do', success_text: 'MERIDIAN' } },
+    ],
+    stop_reason: 'tool_use',
+    usage: { input_tokens: 5, output_tokens: 3 },
+  }),
+};
+
 vi.mock('@anthropic-ai/sdk', () => ({
   default: class FakeAnthropic {
     beta = {
       messages: {
         stream: (params: Record<string, unknown>) => {
           constructed.push(params);
-          return {
-            finalMessage: async () => ({
-              content: [
-                { type: 'text', text: 'I will stop here.' },
-                { type: 'tool_use', id: 't1', name: 'finish', input: { summary: 'nothing to do', success_text: 'MERIDIAN' } },
-              ],
-              stop_reason: 'tool_use',
-              usage: { input_tokens: 5, output_tokens: 3 },
-            }),
-          };
+          if (betaThrows) throw betaThrows;
+          return finished;
         },
+      },
+    };
+    // The path the planner falls through to when the fallback beta is refused.
+    messages = {
+      stream: (params: Record<string, unknown>) => {
+        constructed.push(params);
+        if (plainThrows) throw plainThrows;
+        return finished;
       },
     };
   },
@@ -104,6 +120,8 @@ let saved: Record<string, string | undefined> = {};
 beforeEach(() => {
   constructed.length = 0;
   sessions.length = 0;
+  betaThrows = null;
+  plainThrows = null;
   saved = {
     key: process.env['ANTHROPIC_API_KEY'],
     model: process.env['HANDSPAN_MODEL'],
@@ -167,6 +185,16 @@ describe('the model path', () => {
     expect(log).toContain('I will stop here.');
   });
 
+  it('falls back to a plain request when the beta is refused', async () => {
+    betaThrows = Object.assign(new Error('unknown beta'), { status: 400 });
+    const ws = workspace();
+    expect(
+      await run([ws.goal, '--app-profile', ws.profile, '--policy', ws.policy, '--out', ws.out, '--no-vision'], captureIo(), factory),
+    ).toBe(EXIT.ok);
+    const log = await import('node:fs').then((fs) => fs.readFileSync(join(sessions[0]!.recorder.dir, 'run.jsonl'), 'utf8'));
+    expect(log).toContain('server-side fallbacks unavailable');
+  });
+
   it('starts even when only an auth token is set', async () => {
     delete process.env['ANTHROPIC_API_KEY'];
     process.env['ANTHROPIC_AUTH_TOKEN'] = 'token';
@@ -179,5 +207,56 @@ describe('the model path', () => {
     } finally {
       delete process.env['ANTHROPIC_AUTH_TOKEN'];
     }
+  });
+});
+
+/**
+ * Credential handling.
+ *
+ * A pre-check can only see that a variable is set, so an invalid key used to
+ * reach the SDK and surface as an unhandled 401 stack trace - which is what a
+ * reviewer got by following the README's `cp .env.example .env` literally.
+ * Both halves are covered here: absent, and present but rejected.
+ */
+describe('model credentials', () => {
+  it('treats a blank key as no key at all', async () => {
+    process.env['ANTHROPIC_API_KEY'] = '   ';
+    const ws = workspace();
+    const io = captureIo();
+    const code = await run([ws.goal, '--app-profile', ws.profile, '--policy', ws.policy, '--out', ws.out], io, factory);
+
+    expect(code).toBe(EXIT.usage);
+    expect(io.stderr).toContain('No model credentials found');
+    expect(sessions).toHaveLength(0);
+  });
+
+  it('reports a rejected credential instead of throwing the SDK error', async () => {
+    betaThrows = Object.assign(new Error('401 authentication_error'), { status: 401 });
+    const ws = workspace();
+    const io = captureIo();
+    const code = await run([ws.goal, '--app-profile', ws.profile, '--policy', ws.policy, '--out', ws.out, '--no-vision'], io, factory);
+
+    expect(code).toBe(EXIT.usage);
+    expect(io.stderr).toContain('The model rejected the credential');
+    expect(io.stderr).not.toContain('AuthenticationError');
+  });
+
+  it('records the rejection in the run log', async () => {
+    betaThrows = Object.assign(new Error('403 permission_error'), { status: 403 });
+    const ws = workspace();
+    await run([ws.goal, '--app-profile', ws.profile, '--policy', ws.policy, '--out', ws.out, '--no-vision'], captureIo(), factory);
+    const log = await import('node:fs').then((fs) => fs.readFileSync(join(sessions[0]!.recorder.dir, 'run.jsonl'), 'utf8'));
+    expect(log).toContain('model rejected the credential');
+    expect(log).not.toContain('server-side fallbacks unavailable');
+  });
+
+  it('still lets a genuine fault surface as itself', async () => {
+    const overloaded = Object.assign(new Error('overloaded'), { status: 529 });
+    betaThrows = overloaded;
+    plainThrows = overloaded;
+    const ws = workspace();
+    await expect(
+      run([ws.goal, '--app-profile', ws.profile, '--policy', ws.policy, '--out', ws.out, '--no-vision'], captureIo(), factory),
+    ).rejects.toThrow('overloaded');
   });
 });

@@ -59,7 +59,9 @@ Sign-on is `tellersvc` / `demo-pass-not-real`. Members on file: `12345`,
 ### Model access
 
 Only the discovery run needs a model. Set `ANTHROPIC_API_KEY` in `.env`, or run
-`ant auth login`. Replay never reads it.
+`ant auth login`. Replay never reads it. `.env.example` leaves the key blank on
+purpose: an unset key gets a clear message, and a key the model rejects gets a
+different clear message, rather than an SDK stack trace.
 
 Every command also runs with `--script`, which swaps the model for a recorded
 sequence of the same tool calls. Same perception, same policy gate, same
@@ -174,7 +176,7 @@ npm run catalog -- approve capabilities/meridian.member.subaccount_open@1.0.0.ca
 ## Tests
 
 ```bash
-npm test            # 631 tests
+npm test            # 636 tests
 npm run coverage    # the same, with the 100% threshold enforced
 npm run typecheck
 ```

@@ -11,6 +11,7 @@
  */
 
 import { readFileSync } from 'node:fs';
+import type { RunRecorder } from '../obs/recorder.js';
 import { loadAppProfile } from '../artifact/app-profile.js';
 import { compareVersions, loadCatalog, saveCapability } from '../artifact/store.js';
 import { lintCapability } from '../artifact/lint.js';
@@ -18,7 +19,7 @@ import { discover } from '../discover/agent.js';
 import { compileCapability } from '../discover/compile.js';
 import { loadGoalSpec } from '../discover/goal.js';
 import { firstMessage, systemPrompt } from '../discover/prompts.js';
-import { AnthropicPlanner, ScriptedPlanner, type Planner, type ScriptedStep } from '../llm/planner.js';
+import { AnthropicPlanner, ScriptedPlanner, isAuthFailure, type Planner, type ScriptedStep } from '../llm/planner.js';
 import { bool, num, parseArgs, str } from './args.js';
 import { EXIT, type Io } from './io.js';
 import { appProfilePathFor, loadPolicyConfig, openSession, resolveTenant, type SessionFactory } from './shared.js';
@@ -30,6 +31,22 @@ const USAGE = `usage: handspan discover <goal.yaml> [--script <file.json>] [--te
 const NO_CREDENTIALS =
   '\n  No model credentials found. Set ANTHROPIC_API_KEY (or run `ant auth login`),\n' +
   '  or pass --script config/scripts/<name>.json to run the same pipeline offline.\n\n';
+
+const REJECTED_CREDENTIALS =
+  '\n  The model rejected the credential. ANTHROPIC_API_KEY is set but not valid -\n' +
+  '  check for a placeholder copied out of .env.example, or a rotated key.\n' +
+  '  Or pass --script config/scripts/<name>.json to run the same pipeline offline.\n\n';
+
+/**
+ * A credential that is present but blank is absent. The distinction matters
+ * because the friendly message above is only reachable from a pre-check, and a
+ * pre-check can only ever see presence - which is why the run path below also
+ * has to catch the rejection the server sends back.
+ */
+function hasCredentials(): boolean {
+  const value = process.env['ANTHROPIC_API_KEY'] ?? process.env['ANTHROPIC_AUTH_TOKEN'] ?? '';
+  return value.trim().length > 0;
+}
 
 /**
  * Re-recording an existing capability produces a new minor version rather than
@@ -46,7 +63,35 @@ export function nextVersion(dir: string, id: string): string {
   return `${major}.${minor + 1}.0`;
 }
 
+/**
+ * A rejected credential is the one error class with a better answer than a
+ * stack trace, so it is classified here rather than escaping to `bin/`.
+ * Everything else is a genuine fault and the trace is the useful artifact.
+ */
 export async function run(argv: string[], io: Io, openSessionFn: SessionFactory = openSession): Promise<number> {
+  try {
+    return await runDiscovery(argv, io, openSessionFn);
+  } catch (err) {
+    if (!isAuthFailure(err)) throw err;
+    io.err(REJECTED_CREDENTIALS);
+    return EXIT.usage;
+  }
+}
+
+/**
+ * Puts the credential rejection in the run log before it leaves the session,
+ * so the evidence directory explains why the run stopped after `run.start`.
+ */
+async function withCredentialNote<T>(recorder: RunRecorder, fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (isAuthFailure(err)) recorder.event('note', { source: 'cli', text: 'model rejected the credential' });
+    throw err;
+  }
+}
+
+async function runDiscovery(argv: string[], io: Io, openSessionFn: SessionFactory): Promise<number> {
   const args = parseArgs(argv);
   const goalPath = args.positional[0];
   if (!goalPath) {
@@ -62,8 +107,7 @@ export async function run(argv: string[], io: Io, openSessionFn: SessionFactory 
   const outDir = str(args, 'out', 'capabilities')!;
   const scriptPath = str(args, 'script');
 
-  const hasCredentials = Boolean(process.env['ANTHROPIC_API_KEY'] ?? process.env['ANTHROPIC_AUTH_TOKEN']);
-  if (!scriptPath && !hasCredentials) {
+  if (!scriptPath && !hasCredentials()) {
     io.err(NO_CREDENTIALS);
     return EXIT.usage;
   }
@@ -105,7 +149,7 @@ export async function run(argv: string[], io: Io, openSessionFn: SessionFactory 
   io.err(`  run:     ${session.recorder.dir}\n\n`);
 
   try {
-    const result = await discover({
+    const result = await withCredentialNote(session.recorder, () => discover({
       goal,
       app,
       planner,
@@ -117,7 +161,7 @@ export async function run(argv: string[], io: Io, openSessionFn: SessionFactory 
       broker: session.hasOperator ? session.broker : undefined,
       maxTurns: num(args, 'max-turns', 40),
       vision: !bool(args, 'no-vision'),
-    });
+    }));
 
     session.recorder.writeFile('trace.json', JSON.stringify(result.trace, null, 2));
 

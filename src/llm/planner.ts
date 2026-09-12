@@ -36,6 +36,18 @@ export interface PlannerTurn {
   usage?: { inputTokens: number; outputTokens: number };
 }
 
+/**
+ * True when the model refused the credential rather than the request.
+ *
+ * Kept structural rather than `instanceof Anthropic.AuthenticationError` so
+ * that callers can classify the error without pulling the SDK's module graph
+ * in, which is the whole reason the scripted path stays cheap.
+ */
+export function isAuthFailure(err: unknown): boolean {
+  const status = (err as { status?: unknown } | null | undefined)?.status;
+  return status === 401 || status === 403;
+}
+
 export interface Planner {
   readonly model: string;
   /** Pass null on the first call; afterwards, the results of the last turn. */
@@ -328,6 +340,11 @@ export class AnthropicPlanner implements Planner {
         } as never);
         return (await stream.finalMessage()) as Anthropic.Message;
       } catch (err) {
+        // A rejected credential is not a missing beta. Retrying the plain
+        // request would fail identically one turn later, having already put a
+        // misleading "fallbacks unavailable" note in the run log - which is
+        // exactly how an invalid key came to surface as an unhandled 401.
+        if (isAuthFailure(err)) throw err;
         // If this deployment does not have the fallback beta, fall through to a
         // plain request rather than failing the run over a resilience feature.
         this.useFallbacks = false;

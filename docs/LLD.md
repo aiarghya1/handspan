@@ -802,7 +802,7 @@ tool definition byte-identical.
 
 ## 16. Testing strategy
 
-631 tests across 27 files. 100% statements, branches, functions and lines, with
+636 tests across 29 files. 100% statements, branches, functions and lines, with
 the threshold enforced in `vitest.config.ts` and no `istanbul ignore` anywhere:
 
 ```ts

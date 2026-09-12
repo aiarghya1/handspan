@@ -578,7 +578,7 @@ cannot show.
 
 ### What the test suite is, and what it found
 
-631 tests, and 100% of statements, branches, functions and lines across `src/`
+636 tests, and 100% of statements, branches, functions and lines across `src/`
 with no exclusions — `npm run coverage` fails below that. The number matters
 less than the two structural changes needed to reach it honestly, both of which
 are better design:
@@ -599,7 +599,7 @@ Where a branch turned out to be unreachable defensive code — a `??` on a value
 schema already guarantees — the defence was deleted rather than hidden behind a
 coverage exclusion.
 
-Ten real defects surfaced while writing the tests, which is the actual argument
+Eleven real defects surfaced while writing the tests, which is the actual argument
 for having done it:
 
 | Defect | Why it mattered |
@@ -614,6 +614,7 @@ for having done it:
 | The demo's failure counter was module-level | A second run in one process inherited the first run's failures |
 | `money` and `number` transforms returned 0 for a cell with no digits | A balance silently read as zero, the worst possible extraction failure |
 | An artifact filename was mistaken for an email address by the redactor | Evidence paths were logged as `capabilities/«email»` |
+| An invalid `ANTHROPIC_API_KEY` crashed `discover` with a raw SDK stack trace | The README says `cp .env.example .env`, whose placeholder key passed the presence check and 401'd; the fallback probe then logged the auth error as a missing beta and retried it |
 
 ### Known rough edges
 
