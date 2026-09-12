@@ -1,0 +1,22 @@
+[
+  { "text": "I'll start by looking at the screen.", "calls": [{ "name": "observe", "input": {} }] },
+  { "text": "A sign-on form. I'll use the stored service credentials without seeing them.",
+    "calls": [{ "name": "type_secret", "input": { "handle": "textbox|Operator ID", "secret_key": "meridian.username", "intent": "enter the stored service operator id" } }] },
+  { "calls": [{ "name": "type_secret", "input": { "handle": "password|Password", "secret_key": "meridian.password", "intent": "enter the stored service operator password" } }] },
+  { "calls": [{ "name": "click", "input": { "handle": "button|Sign On", "intent": "sign on to the servicing application", "expect": "MENU", "phase": "signon" } }] },
+  { "calls": [{ "name": "observe", "input": {} }] },
+  { "text": "A maintenance notice is blocking the home screen; dismissing it is the only way on.",
+    "calls": [{ "name": "click", "input": { "handle": "button|Continue", "intent": "dismiss the nightly batch notice", "expect": "Select a function from the menu", "phase": "navigate" } }] },
+  { "calls": [{ "name": "click", "input": { "handle": "link|Member Inquiry", "intent": "open the member inquiry screen", "expect": "MEMBER INQUIRY", "phase": "navigate" } }] },
+  { "calls": [{ "name": "observe", "input": {} }] },
+  { "text": "The member number field is labelled by the cell beside it. This value came from the goal, so I'll record it as the memberId parameter.",
+    "calls": [{ "name": "type_text", "input": { "handle": "textbox|Member Number", "text": "12345", "parameter": "memberId", "intent": "enter the member number being looked up", "phase": "input" } }] },
+  { "calls": [{ "name": "click", "input": { "handle": "button|Retrieve", "intent": "retrieve the member record", "expect": "MEMBER DETAIL", "phase": "input" } }] },
+  { "calls": [{ "name": "observe", "input": {} }] },
+  { "text": "Reading the two declared return values.",
+    "calls": [{ "name": "read_value", "input": { "name": "memberName", "handle": "cell|Name#0", "intent": "read the member's name from the detail header" } }] },
+  { "calls": [{ "name": "read_value", "input": { "name": "savingsBalance", "handle": "cell|Balance|row=REGULAR SHARE SAVINGS", "intent": "read the ledger balance from the regular share savings row of the share grid" } }] },
+  { "text": "A member number that does not exist is a legitimate answer this flow can produce, so I'll record it as an outcome.",
+    "calls": [{ "name": "declare_outcome", "input": { "id": "MEMBER_NOT_FOUND", "description": "The member number does not exist on this core.", "when_text": "No member found for", "disposition": "return" } }] },
+  { "calls": [{ "name": "finish", "input": { "summary": "Signed on with the stored service credential, dismissed the nightly batch notice, opened member inquiry, looked up the member by number, and read the name and the regular share savings ledger balance from the member detail screen.", "success_text": "MEMBER DETAIL" } }] }
+]
